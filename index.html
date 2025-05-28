@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Quest - Web3 Adventure</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a23, #1b1b4d);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            border: 2px solid #00ffff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 4px #00ffff;
+            margin-bottom: 1rem;
+        }
+
+        .status {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+            color: #00ffcc;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            color: #00ffcc;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .history {
+            margin-top: 1.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #00ffff;
+        }
+
+        .history h2 {
+            font-size: 1.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 4px #00ffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .history p {
+            font-size: 0.9rem;
+            color: #00ffcc;
+            margin: 0.3rem 0;
+        }
+
+        .connect-btn, .action-btn {
+            background: #00ffff;
+            color: #000;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 8px #00ffff;
+        }
+
+        .connect-btn:hover, .action-btn:hover {
+            background: #00ccff;
+            transform: scale(1.05);
+        }
+
+        .connect-btn:disabled, .action-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .watermark {
+            margin-top: 0rem;
+            font-size: 1.2rem;
+            color: #00ffff;
+            text-shadow: 0 0 4px #00ffff;
+            padding-bottom: 1rem;
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 0, 0.9);
+            margin: 5% auto;
+            padding: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            color: #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #00ffff;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            color: #00ffff;
+            text-shadow: 0 0 4px #00ffff;
+        }
+
+        .close {
+            color: #00ffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #00ccff;
+        }
+
+        .modal-body {
+            font-size: 1rem;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .modal-body ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-body li {
+            margin-bottom: 8px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #00ffff;
+            padding-top: 10px;
+            text-align: right;
+        }
+
+        .modal-footer button {
+            background: #00ffff;
+            color: #000;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 8px #00ffff;
+        }
+
+        .modal-footer button:hover {
+            background: #00ccff;
+        }
+
+        @keyframes neonGlow {
+            0% { text-shadow: 4px 0 4px #00ffff, 4px 0 8px #00ffff; }
+            50% { text-shadow: 4px 0 12px #00ffff, 4px 0 20px #00ffff; }
+            100% { text-shadow: 4px 0 4px #00ffff, 4px 0 8px #00ffff; }
+        }
+
+        h1, .connect-btn, .action-btn, .history h2, .watermark, .modal-header h2 {
+            animation: neonGlow 0.5s infinite;
+        }
+
+        .history::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .history::-webkit-scrollbar-track {
+            background: #0a0a23;
+        }
+
+        .history::-webkit-scrollbar-thumb {
+            background: #00ffff;
+            border-radius: 4px;
+        }
+
+        .potion-active {
+            color: #ff00ff;
+            font-weight: bold;
+            text-shadow: 0 0 4px #ff00ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Neon Quest</h1>
+        <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+        <div class="status" id="status">Connect your wallet to start!</div>
+        <div class="stats" id="stats" style="display: none;">
+            <span id="score">Score: 0 Neon Coins</span>
+            <span id="hp">HP: 0</span>
+            <span id="level">Level: 0</span>
+            <span id="potion">Potion: </span>
+        </div>
+        <div class="actions" id="actions" style="display: none;">
+            <button class="action-btn" id="startGameBtn" disabled>Start Game</button>
+            <button class="action-btn" id="fightMonsterBtn" disabled>Fight Monster</button>
+            <button class="action-btn" id="searchBtn" disabled>Search</button>
+            <button class="action-btn" id="usePotionBtn" disabled>Use Potion</button>
+            <button class="action-btn" id="upgradeLevelBtn" disabled>Upgrade</button>
+            <button class="action-btn" id="tutorialBtn" disabled>Tutorial</button>
+        </div>
+        <div class="history" id="history">
+            <h2>Action Log</h2>
+            <p>No history yet.</p>
+        </div>
+        <div class="watermark">by fuero.eth</div>
+    </div>
+
+    <!-- Modal untuk Tutorial -->
+    <div id="tutorialModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Neon Quest Tutorial</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Welcome to <strong>Neon Quest</strong>, a blockchain-based adventure game on Base Mainnet! Follow these steps to play:</p>
+                <ul>
+                    <li><strong>Connect Wallet</strong>: Click "Connect Wallet" to link your MetaMask wallet to Base Mainnet. Ensure you have ETH for gas fees (use a faucet like Alchemy if needed).</li>
+                    <li><strong>Start Game</strong>: Click "Start Game" to initialize your character. This sets your HP, Level, and Score, and may grant a potion.</li>
+                    <li><strong>Game Actions</strong>:
+                        <ul>
+                            <li><strong>Fight Monster</strong>: Battle a monster to earn Neon Coins or take damage. Your HP may decrease.</li>
+                            <li><strong>Search</strong>: Explore to find Neon Coins. Success depends on luck and your level.</li>
+                            <li><strong>Use Potion</strong>: Activate a potion (if available) to restore HP or gain bonuses. Check "Potion: Active" in stats.</li>
+                            <li><strong>Upgrade</strong>: Increase your level to improve your stats, requiring sufficient Neon Coins.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Stats</strong>:
+                        <ul>
+                            <li><strong>Score</strong>: Neon Coins earned from actions, used for upgrades.</li>
+                            <li><strong>HP</strong>: Health points; if 0, you may need to restart.</li>
+                            <li><strong>Level</strong>: Your character’s level, affecting action success.</li>
+                            <li><strong>Potion</strong>: Shows if a potion is available ("Active" or "Inactive").</li>
+                        </ul>
+                    </li>
+                    <li><strong>Action Log</strong>: Tracks your game history, showing all actions and outcomes.</li>
+                    <li><strong>Tips</strong>:
+                        <ul>
+                            <li>Ensure Base Mainnet (Chain ID: 8453) is selected in MetaMask.</li>
+                            <li>Check your ETH balance for gas fees.</li>
+                            <li>Save Neon Coins for upgrades to improve success rates.</li>
+                            <li>Monitor HP to avoid losing progress.</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>Enjoy your adventure in Neon Quest, created by fuero.eth!</p>
+            </div>
+            <div class="modal-footer">
+                <button id="closeModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ethers.js via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script>
+        // Konstruktor
+        let provider;
+        let signer;
+        let contract;
+        let account;
+
+        // Konfigurasi Base Mainnet
+        const baseMainnet = {
+            chainId: '0x2105', // 8453 in hex
+            chainName: 'Base Mainnet',
+            nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18
+            },
+            rpcUrls: ['https://mainnet.base.org', 'https://rpc.base.org'],
+            blockExplorerUrls: ['https://basescan.org']
+        };
+
+        // Alamat kontrak dan ABI
+        const contractAddress = "0x29a4486b8481205a24902ce4347903f14b4a0d71";
+        const contractABI = [
+            {
+                "anonymous": false,
+                "inputs": [
+                    {"indexed": true, "internalType": "address", "name": "player", "type": "address"},
+                    {"indexed": false, "internalType": "string", "name": "action", "type": "string"},
+                    {"indexed": false, "internalType": "uint256", "name": "points", "type": "uint256"},
+                    {"indexed": false, "internalType": "bool", "name": "success", "type": "bool"}
+                ],
+                "name": "ActionTaken",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {"indexed": true, "internalType": "address", "name": "player", "type": "address"}
+                ],
+                "name": "PotionUsed",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {"indexed": true, "internalType": "address", "name": "player", "type": "address"},
+                    {"indexed": false, "internalType": "uint256", "name": "newLevel", "type": "uint256"}
+                ],
+                "name": "Upgraded",
+                "type": "event"
+            },
+            {
+                "inputs": [],
+                "name": "fightMonster",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "initializePlayer",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "searchTreasure",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "upgradeLevel",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "usePotion",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "address", "name": "_player", "type": "address"}],
+                "name": "getPlayerActions",
+                "outputs": [{"internalType": "string[]", "name": "", "type": "string[]"}],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{"internalType": "address", "name": "", "type": "address"}],
+                "name": "players",
+                "outputs": [
+                    {"internalType": "uint256", "name": "score", "type": "uint256"},
+                    {"internalType": "uint256", "name": "hp", "type": "uint256"},
+                    {"internalType": "uint256", "name": "level", "type": "uint256"},
+                    {"internalType": "bool", "name": "hasPotion", "type": "bool"}
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        // Inisialisasi Ethers
+        async function initEthers() {
+            try {
+                if (!window.ethereum) {
+                    throw new Error("MetaMask is not installed. Please install MetaMask to play.");
+                }
+                console.log("MetaMask detected, initializing Ethers...");
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                contract = new ethers.Contract(contractAddress, contractABI, provider);
+                console.log("Ethers and contract initialized successfully.");
+                document.getElementById('status').innerText = "Ethers initialized. Connect your wallet to start!";
+            } catch (error) {
+                console.error("Error initializing Ethers:", error);
+                document.getElementById('status').innerText = "Failed to initialize Ethers: " + error.message;
+                setTimeout(initEthers, 2000);
+            }
+        }
+
+        // Koneksi Wallet dan Switch ke Base Mainnet
+        async function connectWallet() {
+            console.log("Connect Wallet button clicked.");
+            try {
+                console.log("Attempting to connect wallet...");
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: baseMainnet.chainId }],
+                    });
+                    console.log("Switched to Base Mainnet.");
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        console.log("Base Mainnet not found, adding chain...");
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [baseMainnet],
+                        });
+                        console.log("Base Mainnet added.");
+                    } else {
+                        throw switchError;
+                    }
+                }
+
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                signer = provider.getSigner();
+                account = await signer.getAddress();
+                contract = contract.connect(signer);
+                document.getElementById('status').innerText = `Connected: ${account.slice(0, 6)}...${account.slice(-4)}`;
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('stats').style.display = 'flex';
+                document.getElementById('actions').style.display = 'flex';
+
+                document.getElementById('startGameBtn').disabled = false;
+                document.getElementById('fightMonsterBtn').disabled = false;
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('usePotionBtn').disabled = false;
+                document.getElementById('upgradeLevelBtn').disabled = false;
+                document.getElementById('tutorialBtn').disabled = false;
+
+                console.log("Wallet connected:", account);
+                updateStats();
+                updateHistory();
+            } catch (error) {
+                console.error("Error connecting wallet:", error);
+                document.getElementById('status').innerText = "Failed to connect wallet: " + error.message;
+            }
+        }
+
+        // Pengecekan kontrak
+        function checkContract() {
+            if (!provider || !contract || !signer) {
+                document.getElementById('status').innerText = "Contract not initialized. Please ensure MetaMask is installed and try again.";
+                console.error("Contract, provider, or signer not initialized.");
+                return false;
+            }
+            if (!account) {
+                document.getElementById('status').innerText = "Please connect wallet first!";
+                console.error("No account connected.");
+                return false;
+            }
+            return true;
+        }
+
+        // Inisialisasi Pemain
+        async function initializePlayer() {
+            if (!checkContract()) return;
+            try {
+                document.getElementById('status').innerText = "Initializing player...";
+                console.log("Calling initializePlayer...");
+                const tx = await contract.initializePlayer();
+                await tx.wait();
+                document.getElementById('status').innerText = "Player initialized!";
+                console.log("Player initialized successfully.");
+                updateStats();
+                updateHistory();
+            } catch (error) {
+                console.error("Error initializing player:", error);
+                document.getElementById('status').innerText = "Initialization failed: " + error.message;
+            }
+        }
+
+        // Melawan Monster
+        async function fightMonster() {
+            if (!checkContract()) return;
+            try {
+                document.getElementById('status').innerText = "Fighting monster...";
+                console.log("Calling fightMonster...");
+                const tx = await contract.fightMonster();
+                await tx.wait();
+                document.getElementById('status').innerText = "Monster fight completed!";
+                console.log("Fight monster completed.");
+                updateStats();
+                updateHistory();
+            } catch (error) {
+                console.error("Error fighting monster:", error);
+                document.getElementById('status').innerText = "Fight failed: " + error.message;
+            }
+        }
+
+        // Mencari Harta Karun
+        async function searchTreasure() {
+            if (!checkContract()) return;
+            try {
+                document.getElementById('status').innerText = "Searching...";
+                console.log("Calling searchTreasure...");
+                const tx = await contract.searchTreasure();
+                await tx.wait();
+                document.getElementById('status').innerText = "Search completed!";
+                console.log("Search treasure completed.");
+                updateStats();
+                updateHistory();
+            } catch (error) {
+                console.error("Error searching treasure:", error);
+                document.getElementById('status').innerText = "Search failed: " + error.message;
+            }
+        }
+
+        // Menggunakan Potion
+        async function usePotion() {
+            if (!checkContract()) return;
+            try {
+                document.getElementById('status').innerText = "Using potion...";
+                console.log("Calling usePotion...");
+                const tx = await contract.usePotion();
+                await tx.wait();
+                document.getElementById('status').innerText = "Potion used!";
+                console.log("Potion used successfully.");
+                updateStats();
+                updateHistory();
+            } catch (error) {
+                console.error("Error using potion:", error);
+                document.getElementById('status').innerText = "Use potion failed: " + error.message;
+            }
+        }
+
+        // Upgrade Level
+        async function upgradeLevel() {
+            if (!checkContract()) return;
+            try {
+                document.getElementById('status').innerText = "Upgrading...";
+                console.log("Calling upgradeLevel...");
+                const tx = await contract.upgradeLevel();
+                await tx.wait();
+                document.getElementById('status').innerText = "Upgraded!";
+                console.log("Level upgraded successfully.");
+                updateStats();
+                updateHistory();
+            } catch (error) {
+                console.error("Error upgrading level:", error);
+                document.getElementById('status').innerText = "Upgrade failed: " + error.message;
+            }
+        }
+
+        // Perbarui Statistik
+        async function updateStats() {
+            if (!checkContract()) return;
+            try {
+                const player = await contract.players(account);
+                document.getElementById('score').innerText = `Score: ${player.score} Neon Coins`;
+                document.getElementById('hp').innerText = `HP: ${player.hp}`;
+                document.getElementById('level').innerText = `Level: ${player.level}`;
+                document.getElementById('potion').innerText = `Potion: ${player.hasPotion ? 'Active' : 'Inactive'}`;
+                if (player.hasPotion) {
+                    document.getElementById('potion').classList.add('potion-active');
+                } else {
+                    document.getElementById('potion').classList.remove('potion-active');
+                }
+                console.log("Stats updated:", player);
+            } catch (error) {
+                console.error("Error fetching stats:", error);
+                document.getElementById('status').innerText = "Failed to fetch stats: " + error.message;
+            }
+        }
+
+        // Perbarui Riwayat
+        async function updateHistory() {
+            if (!checkContract()) return;
+            try {
+                const actions = await contract.getPlayerActions(account);
+                const historyDiv = document.getElementById('history');
+                historyDiv.innerHTML = '<h2>Action Log</h2>';
+                if (actions.length === 0) {
+                    historyDiv.innerHTML += '<p>No history yet.</p>';
+                } else {
+                    actions.forEach(action => {
+                        const p = document.createElement('p');
+                        p.innerText = action;
+                        historyDiv.appendChild(p);
+                    });
+                }
+                console.log("History updated:", actions);
+            } catch (error) {
+                console.error("Error fetching history:", error);
+                document.getElementById('status').innerText = "Failed to fetch history: " + error.message;
+            }
+        }
+
+        // Event Listener
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM loaded, setting up event listeners...");
+            const connectBtn = document.getElementById('connectBtn');
+            if (connectBtn) {
+                connectBtn.addEventListener('click', connectWallet);
+                console.log("Connect Wallet button listener attached.");
+            } else {
+                console.error("Connect Wallet button not found in DOM.");
+            }
+
+            const startGameBtn = document.getElementById('startGameBtn');
+            const fightMonsterBtn = document.getElementById('fightMonsterBtn');
+            const searchBtn = document.getElementById('searchBtn');
+            const usePotionBtn = document.getElementById('usePotionBtn');
+            const upgradeLevelBtn = document.getElementById('upgradeLevelBtn');
+            const tutorialBtn = document.getElementById('tutorialBtn');
+
+            if (startGameBtn) {
+                startGameBtn.addEventListener('click', initializePlayer);
+                console.log("Start Game button listener attached.");
+            }
+            if (fightMonsterBtn) {
+                fightMonsterBtn.addEventListener('click', fightMonster);
+                console.log("Fight Monster button listener attached.");
+            }
+            if (searchBtn) {
+                searchBtn.addEventListener('click', searchTreasure);
+                console.log("Search button listener attached.");
+            }
+            if (usePotionBtn) {
+                usePotionBtn.addEventListener('click', usePotion);
+                console.log("Use Potion button listener attached.");
+            }
+            if (upgradeLevelBtn) {
+                upgradeLevelBtn.addEventListener('click', upgradeLevel);
+                console.log("Upgrade Level button listener attached.");
+            }
+            if (tutorialBtn) {
+                tutorialBtn.addEventListener('click', () => {
+                    console.log("Tutorial button clicked.");
+                    document.getElementById('tutorialModal').style.display = 'block';
+                });
+                console.log("Tutorial button listener attached.");
+            }
+
+            // Modal close handlers
+            const closeModal = document.getElementById('closeModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    document.getElementById('tutorialModal').style.display = 'none';
+                });
+            }
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                    document.getElementById('tutorialModal').style.display = 'none';
+                });
+            }
+
+            // Inisialisasi Ethers
+            initEthers();
+        });
+    </script>
+</body>
+</html>
